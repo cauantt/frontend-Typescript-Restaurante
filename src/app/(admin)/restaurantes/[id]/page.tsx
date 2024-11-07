@@ -41,7 +41,7 @@ function RestaurantPage({ params }) {
   const [delivery,setDelivery] = useState(true)
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [selectedPayment, setSelectedPayment] = useState("pix")
-
+  
 
   
 
@@ -399,7 +399,7 @@ function RestaurantPage({ params }) {
 
     <div className="flex flex-col justify-center items-center gap-3">
 
-    {menuAddress && <Address address={address} setAddress={setAddress} setSelectedAddress={setSelectedAddress} selectedAddress={selectedAddress} />}
+    {menuAddress && <Address address={address} setAddress={setAddress} setSelectedAddress={setSelectedAddress} selectedAddress={selectedAddress}  />}
 
     
     <div className="flex gap-5">

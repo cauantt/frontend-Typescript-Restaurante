@@ -3,7 +3,7 @@ import { api } from '../services/api';
 import Cookies from "cookies-js";
 import axios from 'axios';
 
-const ModalNewAddress = ({ show, handleClose,setShow }) => {
+const ModalNewAddress = ({ show, handleClose,setShow,setTest,test }) => {
   if (!show) return null;
 
   const [district, setDistrict] = useState("");
@@ -74,6 +74,7 @@ const ModalNewAddress = ({ show, handleClose,setShow }) => {
       });
 
       setShow(false)
+      setTest(!test)
     
       
     } catch (error) {

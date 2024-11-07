@@ -4,14 +4,18 @@ import { FaHome } from "react-icons/fa";
 import ModalNewAddress from './ModalNewAddres';
 import ModalOptions from './ModalOptionsLeft';
 import { MdDelete, MdEdit } from 'react-icons/md';
+import { api } from '../services/api';
+import Modal from './Modal';
 
-const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow }) => {
+const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,setTest,test }) => {
   if (!show) return null;
 
   const [showModalNewAddres,setShowModalNewAddres ] = useState(false)
   const [showModalOptions, setShowModalOptions] = useState(false);
+  const [showModalAddressRemove, setshowModalAddressRemove] = useState(false);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
-
+  
+  const [selectedAddressRemove, setSelectedAddressRemove] = useState("")
   const handleOpenModal = () => {
 
     setShowModalNewAddres(true)
@@ -22,12 +26,22 @@ const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow }
 
   }
 
-  const handleOpenOptions = (event, categoryId) => {
+  const handleOpenOptions = (event, id) => {
     const iconPosition = event.target.getBoundingClientRect();
     setModalPosition({ top: iconPosition.top, left: iconPosition.left });
     setShowModalOptions(true);
+    setSelectedAddressRemove(id)
     
   };
+
+  const handleOpenAddressRemove = ( ) => {
+
+    setshowModalAddressRemove(true);
+    setShowModalOptions(false)
+
+
+
+  }
 
   const handleCloseModal = () => {
 
@@ -37,19 +51,62 @@ const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow }
     
   }
 
+  const handleCloseModalRemove = () => {
+
+
+  setshowModalAddressRemove(false)
+
+    
+  }
+
   const handleCloseOptions = () => {
     setShowModalOptions(false);
+  };
+
+
+  const removeAddres = () => {
+
+    try {
+      console.log(selectedAddressRemove)
+      api.delete(`address/${selectedAddressRemove}`);
+      setTest(!test)
+      setshowModalAddressRemove(false)
+    } catch (error) {
+      console.log(error)
+    }
+    
+    
   };
  
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-800 bg-opacity-75 z-50" onClick={handleClose}>
+      
+      <Modal show={showModalAddressRemove} handleClose={handleCloseModalRemove}>
+        <div className="flex flex-col p-5 gap-4">
+          <p className="text-black font-bold text-lg">Excluir endereço?</p>
+          <div className="flex gap-4">
+            <button
+              className="h-7 w-16 bg-gray-300 text-black"
+              onClick={removeAddres}
+            >
+              Sim
+            </button>
+            <button
+              className="h-7 w-16 bg-gray-300 text-black"
+              onClick={handleCloseModalRemove}
+            >
+              Não
+            </button>
+          </div>
+        </div>
+      </Modal>
       <ModalOptions
                 show={showModalOptions}
                 handleClose={handleCloseOptions}
                 position={modalPosition}
               >
                 <div className="flex flex-col  text-black text-sm gap-1">
-                  <div  className="cursor-pointer flex items-center gap-2">
+                  <div  className="cursor-pointer flex items-center gap-2" onClick={handleOpenAddressRemove}>
 
                   <MdDelete />
                     <p>Excluir</p>
@@ -64,7 +121,7 @@ const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow }
                           </div>
                 </div>
               </ModalOptions>
-      <ModalNewAddress show={showModalNewAddres} handleClose={handleCloseModal} setShow={setShowModalNewAddres}/>
+      <ModalNewAddress show={showModalNewAddres} handleClose={handleCloseModal} setShow={setShowModalNewAddres} setTest={setTest} test={test}/>
        
       <div className="bg-white rounded-lg shadow-lg relative p-10" onClick={(e) => e.stopPropagation()}>
         {/* Botão de Fechar */}
