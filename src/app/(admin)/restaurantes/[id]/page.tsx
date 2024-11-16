@@ -53,6 +53,7 @@ function RestaurantPage({ params }) {
     orderItems?: OrderItems[];
     delivery?: boolean;
     payment?: string;
+    address?: Address
     
     
   }
@@ -88,7 +89,7 @@ function RestaurantPage({ params }) {
     if (option === "deliver") {
       setDeliveryPrice(user.deliveryPrice),(setDelivery(true)),(setMenuAddress(true));
     } else {
-      setDeliveryPrice("0"),(setDelivery(false)),(setMenuAddress(false));
+      setDeliveryPrice("0"),(setDelivery(false)),(setMenuAddress(false),(setSelectedAddress(null)));
     }
   };
 
@@ -96,41 +97,53 @@ function RestaurantPage({ params }) {
   useEffect(() => {
     setTotalOrder(Number(productsTotal) + Number(deliveryPrice));
   }, [deliveryPrice, productsTotal]);
-
   const orderSubmit = async () => {
     try {
       const customer = Cookies.get("userId");
       const establishment = user.userId;
   
-      const response = await api.post("orders", {
+      // Crie o objeto orderData como um objeto do tipo Order
+      const orderData: Order = {
         status: "pendente",
         total: totalOrder,
-        
-        customer: {
-          userId: customer,
-        },
-        delivery : delivery,
-        payment : selectedPayment,
-        establishment: {
-          userId: establishment,
-        },
-        address:  selectedAddress.id,
-        
+        customer: Number(customer),
+        delivery: delivery,
+        payment: selectedPayment,
+        establishment: Number(establishment),
         orderItems: order.orderItems,
-      });
+      };
   
+      // Adicione o campo address se selectedAddress não for null
+      if (selectedAddress !== null) {
+        orderData.address = {
+          id: selectedAddress.id,
+          street: selectedAddress.street,
+          number: selectedAddress.number,
+          district: selectedAddress.district,
+          state: selectedAddress.state,
+          complement: selectedAddress.complement,
+        };
+      }
+  
+      // Envie o pedido com orderData
+      const response = await api.post("orders", orderData);
+  
+      // Feche o mercado e reinicie os dados do pedido
       handleCloseMarket();
       setOrder({
         orderItems: [], // Reinicia o array de orderItems para vazio
         // outros campos que você queira resetar
       });
   
+      // Reinicie os totais
       setTotalOrder(0);
       setProductsTotal(0);
     } catch (error) {
       console.error("Error submitting order:", error);
     }
   };
+  
+  
 
   const addOrderItem = (product: Product, quantity: number) => {
     try {
@@ -409,7 +422,7 @@ function RestaurantPage({ params }) {
               <div
                 onClick={() => handleSelectOption("deliver")}
                 className={`flex flex-col w-[200px] p-3 justify-center items-center border border-gray-300 rounded-lg bg-white gap-4 text-black cursor-pointer hover:border-purple-700
-                  ${selectedOption === "deliver" ? "border-purple-700 " : ""}`} // Aplica estilização se for selecionado
+                  ${selectedOption === "deliver" ? "border-purple-700 " : ""}`} 
               >
                 Entregar no endereço
               </div>
@@ -418,7 +431,7 @@ function RestaurantPage({ params }) {
               <div
                 onClick={() => handleSelectOption("pickup")}
                 className={`flex flex-col w-[200px] p-3 justify-center items-center border border-gray-300 rounded-lg bg-white gap-4 text-black cursor-pointer hover:border-purple-700
-                  ${selectedOption === "pickup" ? "border-purple-700 " : ""}`} // Aplica estilização se for selecionado
+                  ${selectedOption === "pickup" ? "border-purple-700 " : ""}`} 
               >
                 Retirada no balcão
               </div>

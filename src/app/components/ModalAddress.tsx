@@ -7,7 +7,7 @@ import { MdDelete, MdEdit } from 'react-icons/md';
 import { api } from '../services/api';
 import Modal from './Modal';
 
-const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,setTest,test }) => {
+const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,setTest,test,fetchAddress,setAddress }) => {
   if (!show) return null;
 
   const [showModalNewAddres,setShowModalNewAddres ] = useState(false)
@@ -64,19 +64,22 @@ const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,s
   };
 
 
-  const removeAddres = () => {
-
+  const removeAddres = async () => {
     try {
-      console.log(selectedAddressRemove)
-      api.delete(`address/${selectedAddressRemove}`);
-      setTest(!test)
-      setshowModalAddressRemove(false)
+      // Remove o endereço da API
+      await api.delete(`address/${selectedAddressRemove}`);
+  
+      // Atualiza a lista de endereços
+      setAddress(prevAddresses => prevAddresses.filter(address => address.id !== selectedAddressRemove));
+  
+      // Fecha o modal
+      setshowModalAddressRemove(false);
+      
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-    
-    
   };
+  
  
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-800 bg-opacity-75 z-50" onClick={handleClose}>
