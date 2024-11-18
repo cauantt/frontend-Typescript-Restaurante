@@ -103,14 +103,28 @@ function Page() {
            
             switch (order.status) {
                 case 'pendente':
+
                     newStatus = 'aceito';
-                    sendMessage(orderStatus.customer.phone, `Confirmação de Pedido - ${orderStatus.establishment.enterprise} \n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} foi recebido com sucesso!\n\nPreço Total: R$ ${orderStatus.total},00 \n\nEndereço de Entrega: ${orderStatus.address.district}, R.${orderStatus.address.street} - N.${orderStatus.address.number}\n\nEm caso de dúvidas, estamos à disposição!\n\nObrigado por escolher ${orderStatus.establishment.enterprise}`);
+                    if (orderStatus.address && orderStatus.address.district) {
+                    sendMessage(orderStatus.customer.phone, `Confirmação de Pedido - ${orderStatus.establishment.enterprise} \n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} foi recebido com sucesso!\n\nPreço Total: R$ ${orderStatus.total},00 \n\nEndereço de Entrega: ${orderStatus.address.district}, R.${orderStatus.address.street} - N.${orderStatus.address.number}\n\nEm caso de dúvidas, estamos à disposição!\n\nObrigado por escolher ${orderStatus.establishment.enterprise}`);}
+
+                    else {
+
+                        
+                        sendMessage(orderStatus.customer.phone, `Confirmação de Pedido - ${orderStatus.establishment.enterprise} \n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} foi recebido com sucesso!\n\nPreço Total: R$ ${orderStatus.total},00 \n\nRetirada no estabelecimento\n\nEm caso de dúvidas, estamos à disposição!\n\nObrigado por escolher ${orderStatus.establishment.enterprise}`)
+                    }
 
 
                     break;
                 case 'aceito':
-                    newStatus = 'delivery';
-                    sendMessage(orderStatus.customer.phone, `Seu Pedido Está a Caminho!\n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} já saiu para entrega! Em breve, você o receberá no endereço informado\n\nObrigado por confiar na gente!.`);
+                    newStatus = 'delivery'
+                     {orderStatus.delivery === false ? (
+                      sendMessage(orderStatus.customer.phone, `Seu Pedido Está pronto!\n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} já está aguardando ser retirado\n\nObrigado por confiar na gente!.`)
+              ) : (
+               
+                sendMessage(orderStatus.customer.phone, `Seu Pedido Está a Caminho!\n\nOlá ${orderStatus.customer.enterprise}, seu pedido #${orderStatus.id} já saiu para entrega! Em breve, você o receberá no endereço informado\n\nObrigado por confiar na gente!.`)
+              )}
+                    
 
 
                     break;
@@ -177,32 +191,65 @@ function Page() {
     {/* Display order details in the modal */}
     {selectedOrder && (
       <div className="flex flex-col">
-        <div className='flex text-center items-center gap-2 justify-start'>
-          <img src={selectedOrder.establishment.path} alt="Logo" className='h-12 w-12 rounded-full' />
-          <div className='flex flex-col justify-start items-start'>
-            <p> {selectedOrder.establishment.enterprise}</p>
-            <div className='flex gap-2'>
-              <p> Pedido: {selectedOrder.id} -</p>
-              <p>{new Date(selectedOrder.createdAt).toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div className="flex text-center items-center gap-2 justify-start">
+          <img
+            src={selectedOrder.establishment.path}
+            alt="Logo"
+            className="h-12 w-12 rounded-full"
+          />
+          <div className="flex flex-col justify-start items-start">
+            <p>{selectedOrder.establishment.enterprise}</p>
+            <div className="flex gap-2">
+              <p>Pedido: {selectedOrder.id} -</p>
+              <p>
+                {new Date(selectedOrder.createdAt).toLocaleDateString('pt-BR', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
             </div>
-            <Link key={selectedOrder.establishment.userId} href={`/restaurantes/${selectedOrder.establishment.userId}`}>
-              <p className="text-red-600 text-sm cursor-pointer">Ver cardápio</p>
+            <Link
+              key={selectedOrder.establishment.userId}
+              href={`/restaurantes/${selectedOrder.establishment.userId}`}
+            >
+              <p className="text-red-600 text-sm cursor-pointer">
+                Ver cardápio
+              </p>
             </Link>
           </div>
         </div>
 
-        <div className='p-2 rounded-lg flex justify-center items-center w-full bg-gray-100 mt-5 mb-5 gap-2'>
-          {selectedOrder.status === 'finalizado' && <FaCheckCircle className='text-green-600' />}
-          <p>Status: <span>{selectedOrder.status} às {new Date(selectedOrder.updatedAt).toLocaleTimeString('pt-BR')}</span></p>
+        <div className="p-2 rounded-lg flex justify-center items-center w-full bg-gray-100 mt-5 mb-5 gap-2">
+          {/* Conditionally render icon based on order status */}
+          {selectedOrder.status === 'finalizado' && (
+            <FaCheckCircle className="text-green-600" />
+          )}
+          <p>
+            Status: <span>{selectedOrder.status} às {new Date(selectedOrder.updatedAt).toLocaleTimeString('pt-BR')}</span>
+          </p>
         </div>
 
-        <p><strong>Itens:</strong></p>
+        <p>
+          <strong>Itens:</strong>
+        </p>
         <ul>
           {selectedOrder.orderItems.map((item, index) => (
-            <li key={index} className="text-sm text-gray-600 flex items-center gap-4 mt-5">
-              <img src={item.product.path} alt={item.product.name} className="h-16 w-16 object-cover rounded-full" />
+            <li
+              key={index}
+              className="text-sm text-gray-600 flex items-center gap-4 mt-5"
+            >
+              <img
+                src={item.product.path}
+                alt={item.product.name}
+                className="h-16 w-16 object-cover rounded-full"
+              />
+              {/* Display product image */}
               <div>
-                <p>{item.quantity} - {item.product.name}</p>
+                <p>
+                  {item.quantity} - {item.product.name}
+                </p>
               </div>
             </li>
           ))}
@@ -210,40 +257,75 @@ function Page() {
 
         <div className="mt-5 p-4 gap-2 rounded-lg bg-gray-50 w-full flex justify-between">
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-gray-500"><strong>Total do Pedido:</strong></p>
-            <p className="text-sm text-gray-500"><strong>Preço da entrega:</strong></p>
-            <p className="text-sm text-gray-600"><strong>Total Final:</strong></p>
+            <p className="text-sm text-gray-500">
+              <strong>Total do Pedido:</strong>
+            </p>
+            <p className="text-sm text-gray-500">
+              <strong>Preço da entrega:</strong>
+            </p>
+            <p className="text-sm text-gray-600">
+              <strong>Total Final:</strong>
+            </p>
             <p className="flex items-center">
               {paymentOptions[selectedOrder.payment] ? (
                 <>
                   {paymentOptions[selectedOrder.payment].icon}
-                  <span className="ml-2">{paymentOptions[selectedOrder.payment].label}</span>
+                  <span className="ml-2">
+                    {paymentOptions[selectedOrder.payment].label}
+                  </span>
                 </>
-              ) : "Método de pagamento desconhecido"}
+              ) : (
+                "Método de pagamento desconhecido"
+              )}
             </p>
           </div>
           <div className="flex flex-col text-right gap-2 justify-start items-start">
-            <p className="text-gray-500">R$ {selectedOrder.total.toFixed(2)}</p>
+            <p className="text-gray-500">R$ {parseInt(selectedOrder.total) - parseInt(selectedOrder.establishment.deliveryPrice)},00</p>
             <p className="text-gray-500">
-              {selectedOrder.establishment.deliveryPrice === 0
-                ? <span className="text-green-600">Grátis</span>
-                : `R$ ${selectedOrder.establishment.deliveryPrice},00`}
+              {selectedOrder.delivery === false ? (
+                <span className="text-green-600">Grátis</span>
+              ) : (
+                `R$ ${selectedOrder.establishment.deliveryPrice},00`
+              )}
             </p>
-            <p className="text-gray-600">R$ {(parseInt(selectedOrder.total) + parseInt(selectedOrder.establishment.deliveryPrice))},00</p>
+
+            {selectedOrder.delivery === false ? (
+               <p className="text-gray-600">
+              
+               R$ {parseInt(selectedOrder.total) - parseInt(selectedOrder.establishment.deliveryPrice)},00
+             </p>
+              ) : (
+                <p className="text-gray-600">
+              
+              R$ {parseInt(selectedOrder.total) },00
+            </p>
+              )}
+            
           </div>
         </div>
 
-        <p className='mt-5 mb-5'><strong>Endereço de entrega:</strong></p>
+        {/* Check if address exists before rendering */}
         {selectedOrder.address ? (
-          <div className='flex gap-3'>
-            <FaLocationDot className='mt-3 text-lg' />
-            <div className='flex flex-col'>
-              <p>R. {selectedOrder.address.street}, {selectedOrder.address.number}</p>
-              <p className='text-sm'>R. {selectedOrder.address.district}, {selectedOrder.address.city}</p>
+          <>
+            <p className="mt-5 mb-5">
+              <strong>Endereço de entrega:</strong>
+            </p>
+            <div className="flex gap-3">
+              <FaLocationDot className="mt-3 text-lg" />
+              <div className="flex flex-col">
+                <p>
+                  R. {selectedOrder.address.street}, {selectedOrder.address.number}
+                </p>
+                <p className="text-sm">
+                  R. {selectedOrder.address.district}, {selectedOrder.address.city}
+                </p>
+              </div>
             </div>
-          </div>
+          </>
         ) : (
-          <p className="text-sm text-gray-500">Retirada no estabelecimento</p>
+          <p className="mt-5 mb-5 text-gray-500">
+            <strong>Retirada no estabelecimento</strong>  
+          </p>
         )}
       </div>
     )}
@@ -303,11 +385,15 @@ function Page() {
                                         )}
                                     <div className='flex justify-between gap-2 items-center'>
                                         <div className="w-8 h-8 flex justify-center items-center text-2xl text-white bg-red-600">
-                                            {order.delivery === true ? (
+                                        {order.delivery === true ? (
+                                            <div className="w-8 h-8 flex justify-center items-center text-2xl text-white bg-red-600">
                                                 <MdDeliveryDining />
-                                            ) : (
-                                                <span><FaHotTubPerson /></span>
-                                            )}
+                                            </div>
+                                        ) : (
+                                            <div className="w-8 h-8 flex justify-center items-center text-2xl text-white bg-blue-600">
+                                                <FaHotTubPerson />
+                                            </div>
+                                        )}
                                         </div>
                                         <div className='w-14 h-10 bg-blue-500 mr-3 cursor-pointer text-white justify-center items-center rounded-md flex' onClick={() => handleOpen(order)}>ver</div>
                                     </div>
@@ -430,7 +516,7 @@ function Page() {
                                                 <FaHotTubPerson />
                                             </div>
                                         )}
-                                        <div className='w-14 h-10 bg-blue-500 mr-3 cursor-pointer text-white justify-center items-center rounded-md flex'>ver</div>
+                                        <div className='w-14 h-10 bg-blue-500 mr-3 cursor-pointer text-white justify-center items-center rounded-md flex' onClick={() => handleOpen(order)}>ver</div>
                                     </div>
                                 </div>
                             </div>

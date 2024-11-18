@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { api } from '../services/api';
 import Modal from './Modal';
+import { useResetCookies } from './ResetCookiesContext';
 
 
 
@@ -10,7 +11,7 @@ import Modal from './Modal';
 function RemoveButton({ text, reset }) {
   
   const [showModal, setShowModal] = useState(false);
-
+  const { resetCookies, profile, email, enterprise,userid } = useResetCookies();
   const handleOpen = () => setShowModal(true);
   const handleClose = () => {
     setShowModal(false);
@@ -20,11 +21,11 @@ function RemoveButton({ text, reset }) {
 
   const deleteProfile = async () => {
     try {
-      await api.delete('upload/profile');
+      await api.delete(`upload/profile/${userid}`);
       console.log('File deleted successfully');
 
      
-      const defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/teste-d4080.appspot.com/twitter-novo-avatar-padrao-2017-bluebus.png';
+      
       reset();
       handleClose();
 

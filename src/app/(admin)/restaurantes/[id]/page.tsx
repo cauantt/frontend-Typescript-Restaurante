@@ -18,6 +18,7 @@ import Address from "@/app/components/Address";
 import Payment from "@/app/components/Payment";
 import ModalPayment from "@/app/components/ModalPayment";
 import ModalAddress from "@/app/components/ModalAddress";
+import { MdDelete } from "react-icons/md";
 
 function RestaurantPage({ params }) {
   const [address, setAddress] = useState<any>(null); // Initialize as null for better conditional rendering
@@ -168,6 +169,56 @@ function RestaurantPage({ params }) {
       console.log(error);
     }
   };
+  const removeOrderItem = (product: Product) => {
+    try {
+      console.log("Initial Order Items:", order.orderItems);
+      console.log("Product to Remove:", product);
+  
+      // Filter out the item that matches the product.productId
+      const updatedOrderItems = order.orderItems.filter(
+        (item) => item.product.productId !== product.productId
+      );
+  
+      console.log("Updated Order Items:", updatedOrderItems);
+  
+      // Calculate the items to remove and their total price
+      const removedItems = order.orderItems.filter(
+        (item) => item.product.productId === product.productId
+      );
+      console.log("Removed Items:", removedItems);
+  
+      // Adjust the total price by subtracting the price of the removed items
+      const updatedProductsTotal = productsTotal - removedItems.reduce(
+        (total, item) => total + item.product.price * item.quantity,
+        0
+      );
+  
+      console.log("Updated Products Total:", updatedProductsTotal);
+  
+      // Update the order state with the filtered items
+      const updatedOrder = {
+        ...order,
+        orderItems: updatedOrderItems,
+      };
+  
+      console.log("Updated Order Object:", updatedOrder);
+  
+      // Update the state with the new order and total
+      setProductsTotal(updatedProductsTotal);
+      setOrder(updatedOrder);
+  
+      // Close any modal or reset any UI component (if needed)
+      handleClose();
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
+  
+  
+  
+  
+
+  
 
   useEffect(() => {
     if (order) console.log(order);
@@ -396,9 +447,13 @@ function RestaurantPage({ params }) {
                     </p>
                     <p className="text-xs text-gray-400">Quantidade: {item.quantity}</p>
                     <p className="text-xs text-gray-500">Observação: {item.observation}</p>
-                    <p className="text-sm text-green-600 font-semibold w-full truncate">
-                      R$ {item.product.price},00
-                    </p>
+                    <div className="flex justify-between w-full">
+                      <p className="text-sm text-green-600 font-semibold w-full truncate">
+                        R$ {item.product.price},00
+                      </p>
+                      <MdDelete onClick={() => removeOrderItem(item.product)} className="text-lg cursor-pointer" />
+
+                    </div>
                   </div>
                 </div>
               ))

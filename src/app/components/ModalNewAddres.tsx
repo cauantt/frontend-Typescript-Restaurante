@@ -70,7 +70,7 @@ const ModalNewAddress = ({ show, handleClose,setShow,setTest,test }) => {
         state,
         city,
         complement,
-        user : userId
+        userId : userId
       });
 
       setShow(false)

@@ -152,17 +152,27 @@ function Page() {
             </p>
           </div>
           <div className="flex flex-col text-right gap-2 justify-start items-start">
-            <p className="text-gray-500">R$ {selectedOrder.total.toFixed(2)}</p>
+            <p className="text-gray-500">R$ {parseInt(selectedOrder.total) - parseInt(selectedOrder.establishment.deliveryPrice)},00</p>
             <p className="text-gray-500">
-              {selectedOrder.establishment.deliveryPrice === 0 ? (
+              {selectedOrder.delivery === false ? (
                 <span className="text-green-600">Grátis</span>
               ) : (
                 `R$ ${selectedOrder.establishment.deliveryPrice},00`
               )}
             </p>
-            <p className="text-gray-600">
-              R$ {parseInt(selectedOrder.total) + parseInt(selectedOrder.establishment.deliveryPrice)},00
+
+            {selectedOrder.delivery === false ? (
+               <p className="text-gray-600">
+              
+               R$ {parseInt(selectedOrder.total) - parseInt(selectedOrder.establishment.deliveryPrice)},00
+             </p>
+              ) : (
+                <p className="text-gray-600">
+              
+              R$ {parseInt(selectedOrder.total) },00
             </p>
+              )}
+            
           </div>
         </div>
 

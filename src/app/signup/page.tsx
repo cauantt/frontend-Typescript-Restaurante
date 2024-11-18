@@ -57,7 +57,7 @@ export default function SignUp() {
       });
 
       // Redirect to the login page
-      router.push("/login");
+      router.push("/");
 
     } catch (error) {
       console.log(error);

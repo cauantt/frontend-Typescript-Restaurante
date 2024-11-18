@@ -28,7 +28,8 @@ function Address({ address, setAddress, setSelectedAddress,selectedAddress }) {
 
   const fetchAddress = async () => {
     try {
-      const response = await api.get(`address/${customerId}`);
+      
+      const response = await api.get(`address/${parseInt(customerId)}`);
       setAddress(response.data); 
       setSelectedAddress(response.data[0]);
       console.log(response.data)
@@ -58,7 +59,7 @@ function Address({ address, setAddress, setSelectedAddress,selectedAddress }) {
               <p>{selectedAddress.district} - {selectedAddress.complement}</p>
             </>
           ) : (
-            <p>Loading address...</p>
+            <p>Nenhum endereço registrado</p>
           )}
         </div>
       </div>

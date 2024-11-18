@@ -8,11 +8,11 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 function page() {
-  const { resetCookies, profile, email, enterprise } = useResetCookies();
+  const { resetCookies, profile, email, enterprise,userid } = useResetCookies();
   const [show, setShow] = useState(false);
-  const [userId, setUserId] = useState('');
+ 
   const [newEmail, setNewEmail] = useState(email);
-  const [newEnterprise, setNewEnterprise] = useState(false);
+  const [newEnterprise, setNewEnterprise] = useState("");
 
   useEffect(() => {
     email && setNewEmail(email);
@@ -22,11 +22,11 @@ function page() {
   const editInfos = async (e) => {
     try {
       e.preventDefault();
-      const response = await api.patch(`users/${userId} `, {
+      const response = await api.patch(`users/${userid} `, {
         enterprise: newEnterprise,
         email: newEmail
       })
-      resetCookies(fileUrl)
+      resetCookies(profile)
     }
 
     catch (error) {
@@ -59,7 +59,7 @@ function page() {
         </div>
 
         <div className="flex ml-12 gap-10 flex-row">
-          <InsButton className="cursor-pointer" text="Editar foto" reset={resetCookies}  />
+          <InsButton  text="Editar foto" reset={resetCookies}  />
           <RemoveButton text="Remover " reset={resetCookies} />
         </div>
       </div>
