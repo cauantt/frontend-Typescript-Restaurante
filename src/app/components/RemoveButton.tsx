@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { api } from '../services/api';
 import Modal from './Modal';
 import { useResetCookies } from './ResetCookiesContext';
+import { notify } from './Notification';
 
 
 
@@ -28,9 +29,10 @@ function RemoveButton({ text, reset }) {
       
       reset();
       handleClose();
-
+      notify("Foto removida","success")
     } catch (error) {
       console.log(error);
+      notify("Não foi possível remover sua foto, tente novamente!!","error")
     }
   };
 

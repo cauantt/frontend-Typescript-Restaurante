@@ -1,6 +1,8 @@
 'use client'
 
 import InsButton from '@/app/components/InsButton';
+import { notify } from '@/app/components/Notification';
+import NotificationTrigger from '@/app/components/NotificationTrigger';
 import RemoveButton from '@/app/components/RemoveButton';
 import { useResetCookies } from '@/app/components/ResetCookiesContext'
 import { api } from '@/app/services/api';
@@ -27,15 +29,18 @@ function page() {
         email: newEmail
       })
       resetCookies(profile)
+      notify("Dados atualizados com sucesso!!" , "success")
     }
 
     catch (error) {
       console.log(error)
+      notify("Não foi possivel atualizar seus dados, tente novamente!!" , "error")
     }
   }
 
   return (
     <div className="h-full   flex flex-col">
+       <NotificationTrigger message="This is an info notification" type="info" />
       <h2 className="text-black text-3xl">Minha Conta</h2>
 
       <div className="mt-14  bg-white p-3 rounded-lg flex flex-row gap-5 text items-center">
@@ -83,7 +88,7 @@ function page() {
           <label className='block text-sm font-medium text-gray-700'>Email</label>
           <input
             onChange={(e) => setNewEmail(e.target.value)}
-            type="text"
+            type="email"
             placeholder='Digite o email'
             className='mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring focus:border-blue-500'
             value={newEmail}

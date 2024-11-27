@@ -6,6 +6,7 @@ import ModalOptions from './ModalOptionsLeft';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import { api } from '../services/api';
 import Modal from './Modal';
+import { notify } from './Notification';
 
 const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,setTest,test,fetchAddress,setAddress }) => {
   if (!show) return null;
@@ -74,9 +75,12 @@ const ModalAddress = ({ show, handleClose, address, setSelectedAddress,setShow,s
   
       // Fecha o modal
       setshowModalAddressRemove(false);
+
+      notify("Endereço removido!" , "success")
       
     } catch (error) {
       console.log(error);
+      notify("Erro ao excluir o endereço, tente novamente!" , "success")
     }
   };
   

@@ -19,6 +19,8 @@ import Payment from "@/app/components/Payment";
 import ModalPayment from "@/app/components/ModalPayment";
 import ModalAddress from "@/app/components/ModalAddress";
 import { MdDelete } from "react-icons/md";
+import NotificationTrigger from "@/app/components/NotificationTrigger";
+import { notify } from "@/app/components/Notification";
 
 function RestaurantPage({ params }) {
   const [address, setAddress] = useState<any>(null); // Initialize as null for better conditional rendering
@@ -83,6 +85,7 @@ function RestaurantPage({ params }) {
   }
   
   const [order, setOrder] = useState<Order>({ orderItems: [] });
+  
 
   const handleSelectOption = (option) => {
     setSelectedOption(option);
@@ -101,7 +104,7 @@ function RestaurantPage({ params }) {
   const orderSubmit = async () => {
     try {
       const customer = Cookies.get("userId");
-      const establishment = user.userId;
+      const establishment = user;
   
       // Crie o objeto orderData como um objeto do tipo Order
       const orderData: Order = {
@@ -110,7 +113,7 @@ function RestaurantPage({ params }) {
         customer: Number(customer),
         delivery: delivery,
         payment: selectedPayment,
-        establishment: Number(establishment),
+        establishment: Number(establishment.userId),
         orderItems: order.orderItems,
       };
   
@@ -126,21 +129,34 @@ function RestaurantPage({ params }) {
         };
       }
   
-      // Envie o pedido com orderData
-      const response = await api.post("orders", orderData);
+     
   
-      // Feche o mercado e reinicie os dados do pedido
-      handleCloseMarket();
-      setOrder({
-        orderItems: [], // Reinicia o array de orderItems para vazio
-        // outros campos que você queira resetar
-      });
-  
-      // Reinicie os totais
-      setTotalOrder(0);
-      setProductsTotal(0);
+      if(establishment.minimalOrderPrice > productsTotal) {
+
+        notify("Pedido minímo não alcançando" ,"error");
+
+      }
+
+      else {
+
+         
+     await api.post("orders", orderData);
+        
+        handleCloseMarket();
+        setOrder({
+          orderItems: [], 
+        });
+    
+        // Reinicie os totais
+        setTotalOrder(0);
+        setProductsTotal(0);
+        notify("pedido feito com sucesso", "success")}
+      
+      
+      
     } catch (error) {
       console.error("Error submitting order:", error);
+      notify("Desculpe, não conseguimos completar seu pedido. Por favor, tente novamente", "error")
     }
   };
   
@@ -169,25 +185,21 @@ function RestaurantPage({ params }) {
       console.log(error);
     }
   };
-  const removeOrderItem = (product: Product) => {
+  const removeOrderItem = (orderItem: OrderItems) => {
     try {
-      console.log("Initial Order Items:", order.orderItems);
-      console.log("Product to Remove:", product);
+      
   
-      // Filter out the item that matches the product.productId
+      // Filter out the orderItem (not the product itself)
       const updatedOrderItems = order.orderItems.filter(
-        (item) => item.product.productId !== product.productId
+        (item) => item !== orderItem || item.quantity !== orderItem.quantity
       );
   
-      console.log("Updated Order Items:", updatedOrderItems);
-  
-      // Calculate the items to remove and their total price
+      // Calculate the removed item total price to subtract it from the total
       const removedItems = order.orderItems.filter(
-        (item) => item.product.productId === product.productId
+        (item) => item.product.productId === orderItem.product.productId && item.quantity === orderItem.quantity
       );
-      console.log("Removed Items:", removedItems);
   
-      // Adjust the total price by subtracting the price of the removed items
+      // Adjust the total price by subtracting the price of the removed item
       const updatedProductsTotal = productsTotal - removedItems.reduce(
         (total, item) => total + item.product.price * item.quantity,
         0
@@ -216,13 +228,6 @@ function RestaurantPage({ params }) {
   
   
   
-  
-
-  
-
-  useEffect(() => {
-    if (order) console.log(order);
-  }, [order]);
 
   const handleOpen = (productId) => {
     setShowModal(true);
@@ -328,7 +333,7 @@ function RestaurantPage({ params }) {
 
   return (
     <div className="flex flex-col relative">
-      
+      <NotificationTrigger message="This is an info notification" type="info" />
       <Modal show={showModal} handleClose={handleClose}>
         <div className="flex  p-2 gap-4 text-black">
           {product ? (
@@ -394,19 +399,25 @@ function RestaurantPage({ params }) {
         <div className="flex flex-col w-full gap-2 justify-center items-start">
           
           <div className="px-4 py-3 items-center flex hover:bg-gray-50 w-full ">
-            <div className="text-lg font-semibold flex flex-row items-center gap-5 text-center">          <Image
+            <div className="text-lg font-semibold flex flex-row items-center gap-5 text-center w-full">          <Image
             className="rounded-full"
             src={user.path}
             width={40}
             height={40}
             alt={user.enterprise}
           />
-          <div className="flex flex-col gap-1 justify-center items-start">
-            <h1 className="font-semibold text-rs text-black">
-              {user.enterprise} Catalão Centro
-            </h1>
+          <div className="flex flex-col gap-1 justify-center items-start w-full">
+            <div className="flex gap-6 w-full text-center items-center">
+              <h1 className="font-semibold text-rs text-black">
+                {user.enterprise} Catalão Centro
+              
+              </h1>
+              <p className="text-sm text-right font-light"> Min: R${user.minimalOrderPrice},00</p>
+            </div>
 
-            <p className="text-red-600 text-sm cursor-pointer " onClick={handleCloseMarket}>Adicionar mais itens</p>
+            
+              <p className="text-red-600 text-sm cursor-pointer " onClick={handleCloseMarket}>Adicionar mais itens</p>
+              
           </div>
           
           
@@ -451,7 +462,8 @@ function RestaurantPage({ params }) {
                       <p className="text-sm text-green-600 font-semibold w-full truncate">
                         R$ {item.product.price},00
                       </p>
-                      <MdDelete onClick={() => removeOrderItem(item.product)} className="text-lg cursor-pointer" />
+                      <MdDelete onClick={() => removeOrderItem(item)} className="text-lg cursor-pointer" />
+
 
                     </div>
                   </div>
@@ -553,14 +565,16 @@ function RestaurantPage({ params }) {
           </h1>
         </div>
 
-        {market && (
+        
           <div
             onClick={handleOpenMarket}
             className="fixed top-10 right-12 cursor-pointer  p-3 rounded-full bg-purple-700 z-50"
           >
             <FaCartShopping className="text-white text-2xl" />
+            {order.orderItems.length > 0 ? (<p className="mt-2 font-semibold">{order.orderItems.length}</p>) : (<p></p>)} 
+            
           </div>
-        )}
+        
       </div>
 
       {categories.length > 0 ? (

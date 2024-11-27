@@ -5,6 +5,7 @@ import axios from 'axios';
 import { api } from '../services/api';
 import Cookies from 'js-cookie';
 import { useResetCookies } from './ResetCookiesContext'; 
+import { notify } from './Notification';
 
 
 
@@ -41,9 +42,11 @@ function InsButton({ text,reset}) {
         
         
         reset(response.data.imageUrl);
+        notify("Foto atualizada!" ,"success")
         
       } catch (error) {
         console.error('Error uploading file:', error);
+        notify("Não foi possível atualizar sua foto" ,"error")
       }
     }
   };

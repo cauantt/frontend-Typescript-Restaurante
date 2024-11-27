@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import Cookies from "cookies-js";
 import axios from 'axios';
+import { notify } from './Notification';
+import NotificationTrigger from './NotificationTrigger';
 
 const ModalNewAddress = ({ show, handleClose,setShow,setTest,test }) => {
   if (!show) return null;
@@ -75,15 +77,18 @@ const ModalNewAddress = ({ show, handleClose,setShow,setTest,test }) => {
 
       setShow(false)
       setTest(!test)
+      notify("Endereço adicionado!", "success")
     
       
     } catch (error) {
       console.error("Erro ao salvar endereço:", error);
+      notify("Não foi possivel adicionar o endereço, tente novamente!", "error")
     }
   };
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-800 bg-opacity-75 z-50" onClick={handleClose}>
+       
       <div className="bg-white rounded-lg shadow-lg relative p-14" onClick={(e) => e.stopPropagation()}>
         <button onClick={handleClose} className="absolute top-2 right-4 text-black text-xl font-bold">
           &times;

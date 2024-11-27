@@ -12,6 +12,8 @@ import { SlOptions } from "react-icons/sl";
 import ModalEdit from "@/app/components/ModalEdit";
 import { MdDelete } from "react-icons/md";
 import Image from "next/image"; 
+import NotificationTrigger from "@/app/components/NotificationTrigger";
+import { notify } from "@/app/components/Notification";
 
 
 function Page() {
@@ -117,8 +119,10 @@ function Page() {
       console.log('Update response:', response);
       fetchProducts();
       handleCloseModalEdit()
+      notify("O produto foi atualizado", "success")
     } catch (error) {
       console.error('Error updating product:', error);
+      notify("Não foi possível atualizar o produto, tente novamente!!", "error")
     }
   };
 
@@ -133,8 +137,10 @@ function Page() {
       console.log('Update response:', response);
       fetchCategories();
       handleCloseModalEditCategory()
+      notify("A categoria foi atualizada", "success")
     } catch (error) {
       console.error('Error updating product:', error);
+      notify("Não foi possível atualizar a categoria, tente novamente!!", "error")
     }
   };
 
@@ -213,8 +219,10 @@ function Page() {
       await api.delete(`/products/${selectedProductId}`); // Use the selectedProductId to delete the product
       fetchProducts(); // Re-fetch products after deletion
       handleClose();
+      notify("Produto removido", "success")
     } catch (error) {
       console.error("Error deleting product:", error);
+      notify("não foi possível remover o produto", "error")
     }
   };
 
@@ -223,13 +231,16 @@ function Page() {
       await api.delete(`/categories/${selectedCategoryId}`);
       fetchCategories();
       handleClose2();
+      notify("Categoria removida", "success")
     } catch (error) {
       console.error("Error deleting category:", error);
+      notify("Não foi possível remover essa categoria, tente novamente!!", "error")
     }
   };
 
   return (
     <div className=" min-h-full w-full ">
+       <NotificationTrigger message="This is an info notification" type="info" />
       <Modal show={showModal} handleClose={handleClose}>
         <div className="flex flex-col p-5 gap-4">
           <p className="text-black font-bold text-lg">Excluir produto?</p>
