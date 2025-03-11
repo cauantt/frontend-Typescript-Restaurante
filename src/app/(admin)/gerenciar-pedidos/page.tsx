@@ -99,7 +99,7 @@ function Page() {
             const order = orders.find(o => o.id === orderId);
             let newStatus;
     
-            // Definir novo status com base no status atual
+        
            
             switch (order.status) {
                 case 'pendente':
